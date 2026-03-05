@@ -17,7 +17,8 @@ public:
         IdRole = Qt::UserRole + 1,
         StartRole,
         EndRole,
-        TagsRole
+        TagsRole,
+        AnnotationRole,
     };
 
 

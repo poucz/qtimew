@@ -36,6 +36,7 @@ QVariant TimeW::data(const QModelIndex &index, int role) const{
     case StartRole: return entry->start();
     case EndRole: return entry->end();
     case TagsRole: return entry->tags(); // <-- vrací celý QStringList
+    case AnnotationRole: return entry->annotation();
     default: return QVariant();
     }
 }
@@ -46,6 +47,7 @@ QHash<int, QByteArray> TimeW::roleNames() const{
     roles[StartRole] = "start";
     roles[EndRole] = "end";
     roles[TagsRole] = "tags";
+    roles[AnnotationRole] = "annotation";
     return roles;
 }
 
@@ -64,7 +66,7 @@ void TimeW::addEntry(TimeEntry *entry){
 void TimeW::refresh(){
     // 1. Spustit "timew export"
 
-    QByteArray output=runTimeWCmd(QStringList()<<"export"<<":id");
+    QByteArray output=runTimeWCmd(QStringList()<<"export");
 
     // 2. Parsovat JSON
     QJsonParseError parseError;

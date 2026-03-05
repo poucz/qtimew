@@ -29,11 +29,19 @@ void TimeEntry::setTags(const QStringList &tags){
     }
 }
 
+void TimeEntry::setAnnotation(const QString &annotation){
+    if (m_annotation != annotation) {
+        m_annotation = annotation;
+        emit annotationChanged();
+        emit entryChanged();
+    }
+}
+
 
 
 QDebug operator<<(QDebug debug, const TimeEntry &entry){
     QDebugStateSaver saver(debug); // Zajistí správné formátování (mezery atd.)
-    debug.nospace() << "ID: " << entry.id() << " " << entry.start()<<" - "<<entry.end() << " - "<<entry.tags().join(",");
+    debug.nospace() << "ID: " << entry.id() << " " << entry.start()<<" - "<<entry.end() << " - "<<entry.tags().join(",")<<" ("<<entry.annotation()<<")";
     return debug;
 }
 

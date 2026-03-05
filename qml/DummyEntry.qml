@@ -7,7 +7,8 @@ QtObject {
             property int id: 1
             property date start: "2024-05-20T10:00:00" // Formát ISO 8601
             property date end: "2024-05-20T10:00:00" // Formát ISO 8601
-            property string tags: "°C"
+            property var tags: ["°C"]
+            property string annotation: "Toto teda nevim"
         },
         QtObject {
             property int id: 2
