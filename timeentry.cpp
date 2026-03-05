@@ -2,7 +2,8 @@
 
 TimeEntry::TimeEntry(int _id, QObject *parent)
     : QObject{parent},
-    m_id(_id)
+    m_id(_id),
+    m_duration(0)
 {}
 
 void TimeEntry::setStart(const QDateTime &start){
@@ -10,6 +11,7 @@ void TimeEntry::setStart(const QDateTime &start){
         m_start = start;
         emit startChanged();
         emit entryChanged();
+        computeDuration();
     }
 }
 
@@ -18,6 +20,7 @@ void TimeEntry::setEnd(const QDateTime &end){
         m_end = end;
         emit endChanged();
         emit entryChanged();
+        computeDuration();
     }
 }
 
@@ -37,6 +40,21 @@ void TimeEntry::setAnnotation(const QString &annotation){
     }
 }
 
+
+
+void TimeEntry::computeDuration() {
+    int new_duration=0;
+    if (m_end.isValid() && m_start.isValid()) {
+        // Délka v sekundách
+        new_duration = m_start.secsTo(m_end);
+    }
+
+    if(new_duration != m_duration){
+        m_duration=new_duration;
+        emit durationChanged();
+        emit entryChanged();
+    }
+}
 
 
 QDebug operator<<(QDebug debug, const TimeEntry &entry){

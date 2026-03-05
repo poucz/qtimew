@@ -15,6 +15,10 @@ TimeW::TimeW(QObject *parent)
     : QAbstractListModel{parent}
 {
 
+    watcher.addPath("/home/pou/.local/share/timewarrior/data/");
+    connect(&watcher, &QFileSystemWatcher::directoryChanged, this, &TimeW::onDirectoryChanged);
+
+
     refresh();
 
 }
@@ -37,6 +41,7 @@ QVariant TimeW::data(const QModelIndex &index, int role) const{
     case EndRole: return entry->end();
     case TagsRole: return entry->tags(); // <-- vrací celý QStringList
     case AnnotationRole: return entry->annotation();
+    case DurationRole: return entry->duration();
     default: return QVariant();
     }
 }
@@ -48,6 +53,7 @@ QHash<int, QByteArray> TimeW::roleNames() const{
     roles[EndRole] = "end";
     roles[TagsRole] = "tags";
     roles[AnnotationRole] = "annotation";
+    roles[DurationRole] = "duration";
     return roles;
 }
 
@@ -66,6 +72,7 @@ void TimeW::addEntry(TimeEntry *entry){
 void TimeW::refresh(){
     // 1. Spustit "timew export"
 
+
     QByteArray output=runTimeWCmd(QStringList()<<"export");
 
     // 2. Parsovat JSON
@@ -83,6 +90,8 @@ void TimeW::refresh(){
     }
 
     QJsonArray jsonArray = doc.array();
+
+    beginResetModel();
 
     m_entries.clear(); // předchozí data, m_entries je QList<TimeEntry*>
 
@@ -104,6 +113,10 @@ void TimeW::refresh(){
             entry->setEnd(QDateTime::fromString(obj["end"].toString(), TIMEW_DATE_FORMAT));
         }
 
+        if (obj.contains("annotation")){
+            entry->setAnnotation(obj["annotation"].toString());
+        }
+
         // tags
         if (obj.contains("tags") && obj["tags"].isArray()) {
             QStringList tags;
@@ -117,6 +130,9 @@ void TimeW::refresh(){
         m_entries.append(entry);
     }
 
+    std::reverse(m_entries.begin(), m_entries.end());
+
+    endResetModel();
     emit entriesChanged(); // pokud máš signal pro GUI
 }
 
@@ -138,6 +154,13 @@ QByteArray TimeW::runTimeWCmd(const QStringList &arg) const{
 
 void TimeW::saveToDB(TimeEntry *entry){
     qInfo()<<"Zaznam se změnil: "<<entry;
+}
+
+
+
+void TimeW::onDirectoryChanged(const QString &path){
+    qInfo() << "V adresáři" << path << "se něco změnilo!";
+    refresh();
 }
 
 

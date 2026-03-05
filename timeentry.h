@@ -15,6 +15,7 @@ class TimeEntry : public QObject
     Q_PROPERTY(QDateTime end        READ end        WRITE setEnd        NOTIFY endChanged)
     Q_PROPERTY(QStringList tags     READ tags       WRITE setTags       NOTIFY tagsChanged)
     Q_PROPERTY(QString annotation   READ annotation WRITE setAnnotation NOTIFY annotationChanged)
+    Q_PROPERTY(int duration         READ duration                       NOTIFY durationChanged)
 
 public:
     explicit TimeEntry(int _id,QObject *parent = nullptr);
@@ -23,7 +24,8 @@ public:
     QDateTime start() const { return m_start; }
     QDateTime end() const { return m_end; }
     const QStringList &tags() const { return m_tags; }
-    const QString &annotation()const { return m_annotation;};
+    const QString &annotation()const { return m_annotation;}
+    int duration()const{return m_duration;}
 
     void setStart(const QDateTime &start);
     void setEnd(const QDateTime &end);
@@ -36,7 +38,9 @@ private:
     QDateTime m_end;
     QStringList m_tags;
     QString m_annotation;
+    int m_duration;
 
+    void computeDuration();
 
 signals:
     void idChanged();
@@ -44,6 +48,7 @@ signals:
     void endChanged();
     void tagsChanged();
     void annotationChanged();
+    void durationChanged();
 
     void entryChanged();
 };

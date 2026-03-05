@@ -3,12 +3,15 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 
+import "Functions.js" as Functions
+
 Item {
     id: root
     required property var timew
 
     width: 500 // Zvětšil jsem šířku, aby se tabulka vešla
     height: 300
+
 
     Component {
         id: nameDelegate
@@ -27,6 +30,34 @@ Item {
             required property var start
             required property var end
             required property var tags
+            required property var annotation
+            required property var duration
+
+            MouseArea {
+                id: hoverArea
+                anchors.fill: parent
+                hoverEnabled: true // Důležité pro detekci najetí bez kliknutí
+                ToolTip {
+                    visible: hoverArea.containsMouse && elemental.annotation !== ""
+                    delay: 500 // Zobrazí se po půl sekundě (aby neblikal při rychlém přejetí)
+
+                    contentItem: Text {
+                        text: elemental.annotation
+                        color: "white"
+                        font.pixelSize: 12
+                        wrapMode: Text.WordWrap // Dlouhé poznámky se zalomí
+                    }
+
+                    background: Rectangle {
+                        color: "#333"
+                        radius: 4
+                    }
+                }
+
+                onClicked:{
+
+                }
+            }//mousearea
 
             RowLayout {
                 anchors.fill: parent
@@ -53,12 +84,28 @@ Item {
                 }
 
                 Text {
-                    text: Array.isArray(elemental.tags) ? elemental.tags.join(", ") : ""
+                    //text: f.formatDuration(elemental.duration)
+                    text: Functions.formatDuration(elemental.duration)
+                    Layout.preferredWidth: 50
+
+                }
+
+                Text {
+                    text: elemental.tags.join(", ")
                     Layout.fillWidth: true
                     elide: Text.ElideRight
                     color: "#0078d7" // Modrá pro tagy
                 }
-            }
+
+                Text {
+                    text: "ⓘ"
+                    visible: elemental.annotation !== ""
+                    color: "#999"
+                    font.pixelSize: 12
+                    Layout.alignment: Qt.AlignRight
+                    Layout.preferredWidth: 30
+                }//TEXT
+            }//RowLayout
         }
     }
 
@@ -89,7 +136,9 @@ Item {
                 Text { text: "ID"; font.bold: true; Layout.preferredWidth: 40 }
                 Text { text: "Start"; font.bold: true; Layout.preferredWidth: 70 }
                 Text { text: "Konec"; font.bold: true; Layout.preferredWidth: 70 }
+                Text { text: "Trvání"; font.bold: true; Layout.preferredWidth: 50 }
                 Text { text: "Tagy"; font.bold: true; Layout.fillWidth: true }
+                Text { text: "-"; font.bold: true; Layout.preferredWidth: 30 }
             }
 
             Rectangle {

@@ -4,6 +4,8 @@
 #include <QObject>
 #include <QQmlEngine>
 #include <QAbstractListModel>
+#include <QFileSystemWatcher>
+
 
 #include "timeentry.h"
 
@@ -19,6 +21,7 @@ public:
         EndRole,
         TagsRole,
         AnnotationRole,
+        DurationRole,
     };
 
 
@@ -34,12 +37,18 @@ public:
     void refresh();
 private:
     QList<TimeEntry*> m_entries;
+    QFileSystemWatcher watcher;
 
     QByteArray runTimeWCmd(const QStringList & arg) const;
     void saveToDB(TimeEntry *entry);
 
+
+private slots:
+    void onDirectoryChanged(const QString &path);
+
 signals:
     void entriesChanged();
+
 };
 
 
