@@ -36,6 +36,7 @@ public:
     Qt::ItemFlags flags(const QModelIndex &index) const override;
 
     Q_INVOKABLE void removeItem(int id);
+    Q_INVOKABLE void modifyEntry(TimeEntry* entry);
 
 
     void refresh();

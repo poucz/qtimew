@@ -62,7 +62,7 @@ Dialog {
         var callback = dialog.onAcceptedCallback;
         if (typeof callback === "function") {
             //callback(time);
-            Qt.callLater(onAcceptedCallback, time);
+            //Qt.callLater(onAcceptedCallback, time);
         }
         console.log("Uloženo! ID:", itemID, "Čas:", time)
     }

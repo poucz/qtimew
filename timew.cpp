@@ -73,6 +73,10 @@ bool TimeW::setData(const QModelIndex &index, const QVariant &value, int role){
 
     int id=m_entries.at(index.row())->id();
 
+    qInfo()<<"Vole faka to!!!!!!!!!! id:"<<id<<" role:"<<role<<" hodnota:"<<value.toString();
+    return false;
+
+
     if (role == EndRole) {
         QDateTime newEnd=m_entries.at(index.row())->end();
         QTime t = QTime::fromString(value.toString(), "HH:mm:ss");
@@ -115,6 +119,12 @@ Qt::ItemFlags TimeW::flags(const QModelIndex &index) const
 void TimeW::removeItem(int id){
     runTimeWCmd(QStringList()<<"delete"<<"@"+QString::number(id));
     refresh();
+}
+
+
+
+void TimeW::modifyEntry(TimeEntry *entry){
+    qInfo()<<"Vole faka to!!!!!!!!!! id:"<<entry;
 }
 
 

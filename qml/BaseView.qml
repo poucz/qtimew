@@ -17,6 +17,9 @@ Item {
         id: editTimeDateDialog
     }
 
+    EditEntry{
+        id:editEntry
+    }
 
     Component {
         id: nameDelegate
@@ -86,12 +89,28 @@ Item {
                     text: Qt.formatDateTime(elemental.model.end, "hh:mm:ss")
                     Layout.preferredWidth: 70
                     onDoubleClick:{
-                        editTimeDateDialog.onAcceptedCallback = function(newTime) {
+                        editEntry.itemId    =elemental.model.id
+                        editEntry.start     =elemental.model.start
+                        editEntry.end       =elemental.model.end
+                        editEntry.annotation=elemental.model.annotation
+                        editEntry.tags      =elemental.model.tags
+                        editEntry.onAcceptedCallback = function() {
+                            console.log("Budu menit id:"+editEntry.itemID)
+                            elemental.model.start       = editEntry.start
+                            elemental.model.end         = editEntry.end
+                            elemental.model.tags        = editEntry.tags
+                            elemental.model.annotation  = editEntry.annotation
+                            //modifyEntry
+                        }
+                        editEntry.open()
+
+
+                        /*editTimeDateDialog.onAcceptedCallback = function(newTime) {
                             elemental.model.end = newTime
                         }
                         editTimeDateDialog.itemID=elemental.model.id
                         editTimeDateDialog.time=Qt.formatDateTime(elemental.model.end, "hh:mm:ss")
-                        editTimeDateDialog.open()
+                        editTimeDateDialog.open()*/
                     }
                 }
 
