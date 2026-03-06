@@ -6,6 +6,7 @@ Item {
     DummyEntry{
         id:s
     }
+
     BaseView{
         anchors.fill:parent
         timew: s.entries

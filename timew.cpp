@@ -66,6 +66,58 @@ void TimeW::addEntry(TimeEntry *entry){
 }
 
 
+bool TimeW::setData(const QModelIndex &index, const QVariant &value, int role){
+
+    if (!index.isValid() || index.row() >= m_entries.count())
+        return false;
+
+    int id=m_entries.at(index.row())->id();
+
+    if (role == EndRole) {
+        QDateTime newEnd=m_entries.at(index.row())->end();
+        QTime t = QTime::fromString(value.toString(), "HH:mm:ss");
+        if (t.isValid()==false) {
+            return false;
+        }
+        newEnd.setTime(t);
+        qInfo()<<"Měnim end "<<id<<"  - "<<m_entries.at(index.row())->end().toString()<<"  --> "<<newEnd.toString();
+        runTimeWCmd(QStringList()<<"modify"<<"end"<<"@"+QString::number(id)<<newEnd.toString(TIMEW_DATE_FORMAT));
+        emit dataChanged(index, index, {role});
+        return true;
+    }else if (role == StartRole) {
+        QDateTime newStart=m_entries.at(index.row())->start();
+        QTime t = QTime::fromString(value.toString(), "HH:mm:ss");
+        if (t.isValid()==false) {
+            return false;
+        }
+        newStart.setTime(t);
+        qInfo()<<"Měnim end "<<id<<"  - "<<m_entries.at(index.row())->start().toString()<<"  --> "<<newStart.toString();
+        runTimeWCmd(QStringList()<<"modify"<<"start"<<"@"+QString::number(id)<<newStart.toString(TIMEW_DATE_FORMAT));
+        emit dataChanged(index, index, {role});
+        return true;
+    }
+    return false;
+}
+
+
+
+Qt::ItemFlags TimeW::flags(const QModelIndex &index) const
+{
+    if (!index.isValid())
+        return Qt::NoItemFlags;
+
+    return Qt::ItemIsEnabled
+           | Qt::ItemIsSelectable
+           | Qt::ItemIsEditable;
+}
+
+
+void TimeW::removeItem(int id){
+    runTimeWCmd(QStringList()<<"delete"<<"@"+QString::number(id));
+    refresh();
+}
+
+
 
 
 
@@ -142,6 +194,7 @@ void TimeW::refresh(){
 QByteArray TimeW::runTimeWCmd(const QStringList &arg) const{
     QProcess process;
     process.start("timew", arg);
+    qInfo()<<"Cmd timew "<<arg.join(" ");
 
     if (!process.waitForFinished(3000)) { // čeká 3s
         qWarning() << "TimeW export failed or timed out";

@@ -13,6 +13,11 @@ Item {
     height: 300
 
 
+    EditTimeDate {
+        id: editTimeDateDialog
+    }
+
+
     Component {
         id: nameDelegate
         Rectangle { // Rectangle je lepší jako základ pro barvu pozadí
@@ -26,36 +31,27 @@ Item {
             border.width: 0.5
 
             required property int index
-            required property string id
-            required property var start
-            required property var end
-            required property var tags
-            required property var annotation
-            required property var duration
+
+            required property var model
 
             MouseArea {
                 id: hoverArea
                 anchors.fill: parent
                 hoverEnabled: true // Důležité pro detekci najetí bez kliknutí
                 ToolTip {
-                    visible: hoverArea.containsMouse && elemental.annotation !== ""
+                    visible: hoverArea.containsMouse && elemental.model.annotation !== ""
                     delay: 500 // Zobrazí se po půl sekundě (aby neblikal při rychlém přejetí)
 
                     contentItem: Text {
-                        text: elemental.annotation
+                        text: elemental.model.annotation
                         color: "white"
                         font.pixelSize: 12
                         wrapMode: Text.WordWrap // Dlouhé poznámky se zalomí
                     }
-
                     background: Rectangle {
                         color: "#333"
                         radius: 4
                     }
-                }
-
-                onClicked:{
-
                 }
             }//mousearea
 
@@ -66,44 +62,74 @@ Item {
                 spacing: 15
 
                 Text {
-                    text: elemental.id
+                    text: elemental.model.id
                     Layout.preferredWidth: 40
                     font.bold: true
                     color: "#666"
                 }
 
-                Text {
+                TextClickable {
                     // Zobrazení pouze času (HH:mm:ss)
-                    text: Qt.formatDateTime(elemental.start, "hh:mm:ss")
+                    text: Qt.formatDateTime(elemental.model.start, "hh:mm:ss")
                     Layout.preferredWidth: 70
+                    onDoubleClick:{
+                        editTimeDateDialog.onAcceptedCallback = function(newTime) {
+                            elemental.model.start = newTime
+                        }
+                        editTimeDateDialog.itemID=elemental.model.id
+                        editTimeDateDialog.time=Qt.formatDateTime(elemental.model.start, "hh:mm:ss")
+                        editTimeDateDialog.open()
+                    }
                 }
 
-                Text {
-                    text: Qt.formatDateTime(elemental.end, "hh:mm:ss")
+                TextClickable {
+                    text: Qt.formatDateTime(elemental.model.end, "hh:mm:ss")
                     Layout.preferredWidth: 70
+                    onDoubleClick:{
+                        editTimeDateDialog.onAcceptedCallback = function(newTime) {
+                            elemental.model.end = newTime
+                        }
+                        editTimeDateDialog.itemID=elemental.model.id
+                        editTimeDateDialog.time=Qt.formatDateTime(elemental.model.end, "hh:mm:ss")
+                        editTimeDateDialog.open()
+                    }
                 }
 
                 Text {
                     //text: f.formatDuration(elemental.duration)
-                    text: Functions.formatDuration(elemental.duration)
+                    text: Functions.formatDuration(elemental.model.duration)
                     Layout.preferredWidth: 50
-
                 }
 
-                Text {
-                    text: elemental.tags.join(", ")
+                TextClickable {
+                    text: elemental.model.tags.join(", ")
                     Layout.fillWidth: true
                     elide: Text.ElideRight
                     color: "#0078d7" // Modrá pro tagy
+                    onDoubleClick:{
+                        console.log(" Double click")
+                    }
                 }
 
                 Text {
                     text: "ⓘ"
-                    visible: elemental.annotation !== ""
+                    visible: elemental.model.annotation !== ""
                     color: "#999"
                     font.pixelSize: 12
                     Layout.alignment: Qt.AlignRight
-                    Layout.preferredWidth: 30
+                    Layout.preferredWidth: 10
+                }//TEXT
+                Button {
+                    text: "X"
+                    palette.buttonText: "red"
+                    //font.pixelSize: 12
+                    background:Rectangle{color:"white"}
+                    Layout.alignment: Qt.AlignRight
+                    Layout.preferredWidth: 10
+                    onClicked:{
+                        console.log("Mažu id: "+elemental.model.id)
+                        root.timew.removeItem(elemental.model.id)
+                    }
                 }//TEXT
             }//RowLayout
         }
