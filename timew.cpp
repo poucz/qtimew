@@ -8,7 +8,8 @@
 #include <QDebug>
 
 
-#define TIMEW_DATE_FORMAT "yyyyMMdd'T'hhmmss'Z'"
+#define TIMEW_DATE_FORMAT_EXPORT "yyyyMMdd'T'hhmmss'Z'" //pro json - příkaz timew export
+#define TIMEW_DATE_FORMAT "yyyy-MM-ddTHH:mm:ss" //klasika volani pro uživatele
 
 
 TimeW::TimeW(QObject *parent)
@@ -73,6 +74,10 @@ bool TimeW::setData(const QModelIndex &index, const QVariant &value, int role){
 
     int id=m_entries.at(index.row())->id();
 
+    if (role == TagsRole) {
+        qInfo()<<"novy tagy:"<<value.toStringList().join(", ") ;
+    }
+
     qInfo()<<"Vole faka to!!!!!!!!!! id:"<<id<<" role:"<<role<<" hodnota:"<<value.toString();
     return false;
 
@@ -118,7 +123,7 @@ Qt::ItemFlags TimeW::flags(const QModelIndex &index) const
 
 void TimeW::removeItem(int id){
     runTimeWCmd(QStringList()<<"delete"<<"@"+QString::number(id));
-    refresh();
+    //efresh();//zavola se automaticky, pač se změní soubory
 }
 
 
@@ -129,11 +134,23 @@ void TimeW::modifyEntry(TimeEntry *entry){
 
 
 
+void TimeW::modifyEntry(int id, const QDateTime &start, const QDateTime &end,const QStringList &tags, const QString &annotation){
+    removeItem(id);
+    addEntry(start,end,tags,annotation);
+}
+
+
+
+void TimeW::addEntry(const QDateTime &start, const QDateTime &end, const QStringList &tags, const QString &annotation){
+    runTimeWCmd(QStringList()<<"track"<<start.toString(TIMEW_DATE_FORMAT)<<"-"<<end.toString(TIMEW_DATE_FORMAT)<<tags);
+
+
+}
+
 
 
 void TimeW::refresh(){
     // 1. Spustit "timew export"
-
 
     QByteArray output=runTimeWCmd(QStringList()<<"export");
 
@@ -167,12 +184,16 @@ void TimeW::refresh(){
         }
 
         TimeEntry *entry = new TimeEntry(obj["id"].toInt(),this);
-
+        QDateTime dt;
         if (obj.contains("start")){
-            entry->setStart(QDateTime::fromString(obj["start"].toString(), TIMEW_DATE_FORMAT));
+            dt = QDateTime::fromString(obj["start"].toString(), TIMEW_DATE_FORMAT_EXPORT);
+            dt.setTimeZone(QTimeZone::UTC);
+            entry->setStart(dt.toLocalTime());
         }
         if (obj.contains("end")){
-            entry->setEnd(QDateTime::fromString(obj["end"].toString(), TIMEW_DATE_FORMAT));
+            dt = QDateTime::fromString(obj["end"].toString(), TIMEW_DATE_FORMAT_EXPORT);
+            dt.setTimeZone(QTimeZone::UTC);
+            entry->setEnd(dt.toLocalTime());
         }
 
         if (obj.contains("annotation")){
@@ -210,6 +231,11 @@ QByteArray TimeW::runTimeWCmd(const QStringList &arg) const{
         qWarning() << "TimeW export failed or timed out";
         return QByteArray();
     }
+
+    if(process.exitCode()!=0){
+        qWarning() << "TimeW CMD error: "<<process.readAllStandardError();
+    }
+
     return process.readAllStandardOutput();
 }
 

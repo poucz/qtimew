@@ -37,6 +37,8 @@ public:
 
     Q_INVOKABLE void removeItem(int id);
     Q_INVOKABLE void modifyEntry(TimeEntry* entry);
+    Q_INVOKABLE void modifyEntry(int id, const QDateTime & start, const QDateTime & end, const QStringList &tags, const QString & annotation);
+    Q_INVOKABLE void addEntry(const QDateTime & start, const QDateTime & end, const QStringList &tags, const QString & annotation);
 
 
     void refresh();

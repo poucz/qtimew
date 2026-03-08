@@ -95,11 +95,12 @@ Item {
                         editEntry.annotation=elemental.model.annotation
                         editEntry.tags      =elemental.model.tags
                         editEntry.onAcceptedCallback = function() {
-                            console.log("Budu menit id:"+editEntry.itemID)
-                            elemental.model.start       = editEntry.start
-                            elemental.model.end         = editEntry.end
-                            elemental.model.tags        = editEntry.tags
-                            elemental.model.annotation  = editEntry.annotation
+                            console.log("Budu menit id:"+editEntry.itemId+" tagy:"+editEntry.tags)
+                            //elemental.model.start       = editEntry.start
+                            //elemental.model.end         = editEntry.end
+                            //elemental.model.tags        = editEntry.tags
+                            //elemental.model.annotation  = editEntry.annotation
+                            root.timew.modifyEntry(editEntry.itemId,editEntry.start,editEntry.end,editEntry.tags,editEntry.annotation)
                             //modifyEntry
                         }
                         editEntry.open()

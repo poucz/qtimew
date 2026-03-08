@@ -10,7 +10,7 @@ Dialog {
     property var start
     property var end
     property alias annotation : annotationField.text
-    property var tagsModel: ListModel
+    property var tags
 
     width: 500
     height: 350
@@ -24,6 +24,22 @@ Dialog {
             if (isStart) root.start = d;
             else root.end = d;
         }
+    }
+
+
+    function addTag() {
+        let newTagName = newTagInput.text.trim();
+        if (newTagName !== "" && !root.tags.includes(newTagName)) {
+            // Vytvoříme úplně nové pole [původní tagy + nový]
+            root.tags = [...root.tags, newTagName];
+            newTagInput.text = "";
+        }
+    }
+
+    function removeTag(index) {
+        let copy = [...root.tags]; // Vytvoří mělkou kopii pole
+        copy.splice(index, 1);      // Odstraní prvek na daném indexu
+        root.tags = copy;           // Přiřadí nové pole zpět
     }
 
     Pane {
@@ -92,25 +108,65 @@ Dialog {
                 }
             }
 
-            // --- SEKCIE TAGY ---
             Label { text: "Tagy"; font.pixelSize: 12; color: "#888" }
+
             Flow {
                 Layout.fillWidth: true
-                spacing: 6
+                spacing: 8
+
                 Repeater {
-                    model: root.tags
+                    model: root.tags // Tady se automaticky spustí update při root.tags = ...
                     delegate: Rectangle {
-                        implicitWidth: tagLabel.width + 20
+                        implicitWidth: row.width + 20
                         implicitHeight: 28
-                        color: "#e0e0e0"
+                        color: "#eee"
                         radius: 14
                         border.color: "#ccc"
-                        Text {
-                            id: tagLabel
+
+                        Row {
+                            id: row
                             anchors.centerIn: parent
-                            text: modelData
-                            font.pixelSize: 12
+                            spacing: 8
+                            padding: 5
+
+                            Text {
+                                text: modelData
+                                font.pixelSize: 12
+                                verticalAlignment: Text.AlignVCenter
+                            }
+
+                            // Tlačítko pro smazání (Křížek)
+                            Text {
+                                text: "×"
+                                font.pixelSize: 16
+                                color: "gray"
+                                verticalAlignment: Text.AlignVCenter
+
+                                MouseArea {
+                                    anchors.fill: parent
+                                    cursorShape: Qt.PointingHandCursor
+                                    onClicked: root.removeTag(index)
+                                }
+                            }
                         }
+                    }
+                }
+
+                // Vstup pro nový tag
+                TextField {
+                    id: newTagInput
+                    placeholderText: "+ přidat tag"
+                    font.pixelSize: 12
+                    implicitWidth: 100
+                    implicitHeight: 28
+
+                    onAccepted: root.addTag()
+
+                    background: Rectangle {
+                        color: "transparent"
+                        border.color: parent.activeFocus ? "#3498db" : "#ddd"
+                        border.width: 1
+                        radius: 14
                     }
                 }
             }
