@@ -13,7 +13,7 @@ Dialog {
     property var tags
 
     width: 500
-    height: 350
+    height: 400
     standardButtons: Dialog.Ok | Dialog.Cancel
 
     // Pomocná funkce pro uložení změn zpět do objektu
@@ -26,13 +26,11 @@ Dialog {
         }
     }
 
-
-    function addTag() {
-        let newTagName = newTagInput.text.trim();
+    function addTag(newTagStr) {
+        let newTagName = newTagStr.trim();
         if (newTagName !== "" && !root.tags.includes(newTagName)) {
             // Vytvoříme úplně nové pole [původní tagy + nový]
             root.tags = [...root.tags, newTagName];
-            newTagInput.text = "";
         }
     }
 
@@ -110,65 +108,12 @@ Dialog {
 
             Label { text: "Tagy"; font.pixelSize: 12; color: "#888" }
 
-            Flow {
+            TagsViewer{
+                model: root.tags
                 Layout.fillWidth: true
                 spacing: 8
-
-                Repeater {
-                    model: root.tags // Tady se automaticky spustí update při root.tags = ...
-                    delegate: Rectangle {
-                        implicitWidth: row.width + 20
-                        implicitHeight: 28
-                        color: "#eee"
-                        radius: 14
-                        border.color: "#ccc"
-
-                        Row {
-                            id: row
-                            anchors.centerIn: parent
-                            spacing: 8
-                            padding: 5
-
-                            Text {
-                                text: modelData
-                                font.pixelSize: 12
-                                verticalAlignment: Text.AlignVCenter
-                            }
-
-                            // Tlačítko pro smazání (Křížek)
-                            Text {
-                                text: "×"
-                                font.pixelSize: 16
-                                color: "gray"
-                                verticalAlignment: Text.AlignVCenter
-
-                                MouseArea {
-                                    anchors.fill: parent
-                                    cursorShape: Qt.PointingHandCursor
-                                    onClicked: root.removeTag(index)
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // Vstup pro nový tag
-                TextField {
-                    id: newTagInput
-                    placeholderText: "+ přidat tag"
-                    font.pixelSize: 12
-                    implicitWidth: 100
-                    implicitHeight: 28
-
-                    onAccepted: root.addTag()
-
-                    background: Rectangle {
-                        color: "transparent"
-                        border.color: parent.activeFocus ? "#3498db" : "#ddd"
-                        border.width: 1
-                        radius: 14
-                    }
-                }
+                onTagRemoved: (index) => root.removeTag(index)
+                onTagAdded: (newTag) => root.addTag(newTag)
             }
 
             // --- SEKCIE ANOTACE ---

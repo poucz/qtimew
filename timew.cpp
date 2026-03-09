@@ -142,7 +142,16 @@ void TimeW::modifyEntry(int id, const QDateTime &start, const QDateTime &end,con
 
 
 void TimeW::addEntry(const QDateTime &start, const QDateTime &end, const QStringList &tags, const QString &annotation){
-    runTimeWCmd(QStringList()<<"track"<<start.toString(TIMEW_DATE_FORMAT)<<"-"<<end.toString(TIMEW_DATE_FORMAT)<<tags);
+    QStringList args;
+    args.append("track");
+    args.append(start.toString(TIMEW_DATE_FORMAT));
+    if(end.isValid()){
+        args.append("-");
+        args.append(end.toString(TIMEW_DATE_FORMAT));
+    }
+
+    args<<tags;
+    runTimeWCmd(args);
 
     if(annotation!=""){
         FILTR old=timewFilter;
@@ -157,6 +166,42 @@ void TimeW::addEntry(const QDateTime &start, const QDateTime &end, const QString
         refresh();
     }
 }
+
+
+
+
+void TimeW::addTag(int id, const QString &tag){
+    runTimeWCmd(QStringList()<<"tag"<<"@"+QString::number(id)<<tag);
+}
+
+void TimeW::delTag(int id, const QString &tag){
+    runTimeWCmd(QStringList()<<"untag"<<"@"+QString::number(id)<<tag);
+}
+
+
+
+bool TimeW::isRunning() const{
+    if(!m_entries.isEmpty()){
+        if(! m_entries.at(0)->end().isValid()){
+            return true;
+        }
+    }
+    return false;
+}
+
+
+void TimeW::setRunning(bool setRunn){
+    if(setRunn){
+        runTimeWCmd(QStringList()<<"start");
+    }else{
+        runTimeWCmd(QStringList()<<"stop");
+    }
+    refresh();
+    emit runningChange();
+}
+
+
+
 
 void TimeW::setStartFiltr(const QDateTime &newFiltr){
     if(newFiltr==timewFilter.startFiltr){
@@ -183,6 +228,10 @@ void TimeW::setTagsFiltr(const QStringList &newFiltr){
     timewFilter.tagsFiltr=newFiltr;
     emit filtrChanged();
 }
+
+
+
+
 
 
 
@@ -257,6 +306,12 @@ void TimeW::refresh(){
 
     endResetModel();
     emit entriesChanged(); // pokud máš signal pro GUI
+}
+
+
+
+void TimeW::refresgTags(){
+
 }
 
 

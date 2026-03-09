@@ -27,6 +27,8 @@ qt_add_qml_module(appqtimew
         QML_FILES qml/EditTimeDate.qml
         QML_FILES qml/TextClickable.qml
         QML_FILES qml/EditEntry.qml
+        QML_FILES qml/TagsViewer.qml
+        QML_FILES qml/MyText.qml
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.

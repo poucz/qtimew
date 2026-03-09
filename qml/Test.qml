@@ -1,24 +1,23 @@
 import QtQuick 2.15
 import QtQuick.Controls
 
-Item {
+Pane {
     id: root
 
     DummyEntry{
         id:s
     }
 
-    /*BaseView{
+    BaseView{
         anchors.fill:parent
         timew: s.entries
-    }*/
+    }//*/
 
-    Button{
+/*    Button{
         onClicked:{
             edit.open()
         }
     }
-
     EditEntry{
         id:edit
         anchors.centerIn:parent
@@ -29,8 +28,6 @@ Item {
         annotation:s.entries[0].annotation
         tags:s.entries[0].tags
     }
-
-    Component.onCompleted:{
-        edit.open()
-    }
+    Component.onCompleted:edit.open()
+    */
 }

@@ -17,6 +17,9 @@ class TimeW : public QAbstractListModel
     Q_PROPERTY(QDateTime startFiltr      READ startFiltr      WRITE setStartFiltr NOTIFY filtrChanged)
     Q_PROPERTY(QDateTime endFiltr        READ endFiltr        WRITE setEndFiltr   NOTIFY filtrChanged)
     Q_PROPERTY(QStringList tagsFiltr      READ tagsFiltr      WRITE setTagsFiltr  NOTIFY filtrChanged)
+
+    Q_PROPERTY(QStringList tags         READ tags                                   NOTIFY tagsChanged)
+    Q_PROPERTY(bool running            READ isRunning          WRITE setRunning     NOTIFY runningChange)
 public:
 
     enum TimeEntryRoles {
@@ -43,20 +46,27 @@ public:
     Q_INVOKABLE void modifyEntry(TimeEntry* entry);
     Q_INVOKABLE void modifyEntry(int id, const QDateTime & start, const QDateTime & end, const QStringList &tags, const QString & annotation);
     Q_INVOKABLE void addEntry(const QDateTime & start, const QDateTime & end, const QStringList &tags, const QString & annotation);
+    Q_INVOKABLE void addTag(int id, const QString & tag);
+    Q_INVOKABLE void delTag(int id, const QString & tag);
+
 
 
 
     QDateTime startFiltr()const{return timewFilter.startFiltr;}
     QDateTime endFiltr()const{return timewFilter.endFiltr;}
     QStringList tagsFiltr()const{return timewFilter.tagsFiltr;}
+    QStringList tags()const{return m_tags;}
+    bool isRunning()const;
 
 
     void setStartFiltr(const QDateTime & newFiltr);
     void setEndFiltr(const QDateTime & newFiltr);
     void setTagsFiltr(const QStringList & newFiltr);
+    void setRunning(bool setRunn);//zastavi nebo spusti novy task
 
 
     void refresh();
+    void refresgTags();
 private:
     struct FILTR{
         QDateTime   startFiltr;
@@ -70,6 +80,7 @@ private:
     QDateTime time2UTF(const QDateTime & t)const;
     QDateTime time2LOCAL(const QDateTime & t)const;
     QList<TimeEntry*> m_entries;
+    QStringList m_tags; //seznam všech tagů
     QFileSystemWatcher watcher;
 
     QByteArray runTimeWCmd(const QStringList & arg) const;
@@ -82,6 +93,8 @@ private slots:
 signals:
     void entriesChanged();
     void filtrChanged();
+    void tagsChanged();
+    void runningChange();
 };
 
 

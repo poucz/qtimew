@@ -1,11 +1,9 @@
 import QtQuick
-
 import "qml/"
 
 Window {
     id: mainWindow
     required property var timew
-
 
     width: 640
     height: 480

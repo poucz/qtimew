@@ -1,6 +1,6 @@
 .pragma library
 
-function formatDuration(sec) {
+function formatDuration2(sec) {
     var h = Math.floor(sec / 3600)
     var m = Math.floor((sec % 3600) / 60)
     var s = sec % 60
@@ -12,4 +12,13 @@ function formatDuration(sec) {
     else
         return m + ":" +
                (s < 10 ? "0" + s : s)
+}
+
+
+function formatDuration(sec) {
+    var h = Math.floor(sec / 3600)
+    var m = Math.floor((sec % 3600) / 60)
+
+    return (h < 10 ? "0" + h : h) + ":" +
+           (m < 10 ? "0" + m : m)
 }
