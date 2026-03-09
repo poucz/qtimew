@@ -13,6 +13,10 @@ class TimeW : public QAbstractListModel
 {
     Q_OBJECT
 
+
+    Q_PROPERTY(QDateTime startFiltr      READ startFiltr      WRITE setStartFiltr NOTIFY filtrChanged)
+    Q_PROPERTY(QDateTime endFiltr        READ endFiltr        WRITE setEndFiltr   NOTIFY filtrChanged)
+    Q_PROPERTY(QStringList tagsFiltr      READ tagsFiltr      WRITE setTagsFiltr  NOTIFY filtrChanged)
 public:
 
     enum TimeEntryRoles {
@@ -41,8 +45,30 @@ public:
     Q_INVOKABLE void addEntry(const QDateTime & start, const QDateTime & end, const QStringList &tags, const QString & annotation);
 
 
+
+    QDateTime startFiltr()const{return timewFilter.startFiltr;}
+    QDateTime endFiltr()const{return timewFilter.endFiltr;}
+    QStringList tagsFiltr()const{return timewFilter.tagsFiltr;}
+
+
+    void setStartFiltr(const QDateTime & newFiltr);
+    void setEndFiltr(const QDateTime & newFiltr);
+    void setTagsFiltr(const QStringList & newFiltr);
+
+
     void refresh();
 private:
+    struct FILTR{
+        QDateTime   startFiltr;
+        QDateTime   endFiltr;
+        QStringList tagsFiltr;
+    };
+
+    FILTR timewFilter;
+
+
+    QDateTime time2UTF(const QDateTime & t)const;
+    QDateTime time2LOCAL(const QDateTime & t)const;
     QList<TimeEntry*> m_entries;
     QFileSystemWatcher watcher;
 
@@ -55,7 +81,7 @@ private slots:
 
 signals:
     void entriesChanged();
-
+    void filtrChanged();
 };
 
 

@@ -96,22 +96,9 @@ Item {
                         editEntry.tags      =elemental.model.tags
                         editEntry.onAcceptedCallback = function() {
                             console.log("Budu menit id:"+editEntry.itemId+" tagy:"+editEntry.tags)
-                            //elemental.model.start       = editEntry.start
-                            //elemental.model.end         = editEntry.end
-                            //elemental.model.tags        = editEntry.tags
-                            //elemental.model.annotation  = editEntry.annotation
                             root.timew.modifyEntry(editEntry.itemId,editEntry.start,editEntry.end,editEntry.tags,editEntry.annotation)
-                            //modifyEntry
                         }
                         editEntry.open()
-
-
-                        /*editTimeDateDialog.onAcceptedCallback = function(newTime) {
-                            elemental.model.end = newTime
-                        }
-                        editTimeDateDialog.itemID=elemental.model.id
-                        editTimeDateDialog.time=Qt.formatDateTime(elemental.model.end, "hh:mm:ss")
-                        editTimeDateDialog.open()*/
                     }
                 }
 

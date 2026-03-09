@@ -144,15 +144,62 @@ void TimeW::modifyEntry(int id, const QDateTime &start, const QDateTime &end,con
 void TimeW::addEntry(const QDateTime &start, const QDateTime &end, const QStringList &tags, const QString &annotation){
     runTimeWCmd(QStringList()<<"track"<<start.toString(TIMEW_DATE_FORMAT)<<"-"<<end.toString(TIMEW_DATE_FORMAT)<<tags);
 
+    if(annotation!=""){
+        FILTR old=timewFilter;
+        timewFilter.startFiltr=start;
+        timewFilter.endFiltr=end;
+        timewFilter.tagsFiltr=tags;
+        refresh();
+        if(m_entries.count()==1){
+            runTimeWCmd(QStringList()<<"annotate"<<"@"+QString::number(m_entries.at(0)->id())<<annotation);
+        }
+        timewFilter=old;
+        refresh();
+    }
+}
 
+void TimeW::setStartFiltr(const QDateTime &newFiltr){
+    if(newFiltr==timewFilter.startFiltr){
+        return;
+    }
+    timewFilter.startFiltr=newFiltr;
+    emit filtrChanged();
+}
+
+
+
+void TimeW::setEndFiltr(const QDateTime &newFiltr){
+    if(newFiltr==timewFilter.endFiltr){
+        return;
+    }
+    timewFilter.endFiltr=newFiltr;
+    emit filtrChanged();
+}
+
+void TimeW::setTagsFiltr(const QStringList &newFiltr){
+    if(newFiltr==timewFilter.tagsFiltr){
+        return;
+    }
+    timewFilter.tagsFiltr=newFiltr;
+    emit filtrChanged();
 }
 
 
 
 void TimeW::refresh(){
-    // 1. Spustit "timew export"
 
-    QByteArray output=runTimeWCmd(QStringList()<<"export");
+    // 1. Spustit "timew export"
+    QStringList args;
+    if(timewFilter.startFiltr.isValid()){
+        args.append(time2UTF(timewFilter.startFiltr).toString(TIMEW_DATE_FORMAT_EXPORT));
+        if(timewFilter.endFiltr.isValid()){//end bez start filtru asi nejde, protože range je určen "-"
+            args.append("-");
+            args.append(time2UTF(timewFilter.endFiltr).toString(TIMEW_DATE_FORMAT_EXPORT));
+        }
+    }
+
+    args<<timewFilter.tagsFiltr;
+    QByteArray output=runTimeWCmd(QStringList()<<"export"<<args);
 
     // 2. Parsovat JSON
     QJsonParseError parseError;
@@ -169,9 +216,7 @@ void TimeW::refresh(){
     }
 
     QJsonArray jsonArray = doc.array();
-
     beginResetModel();
-
     m_entries.clear(); // předchozí data, m_entries je QList<TimeEntry*>
 
     for (const QJsonValue &val : jsonArray) {
@@ -184,16 +229,11 @@ void TimeW::refresh(){
         }
 
         TimeEntry *entry = new TimeEntry(obj["id"].toInt(),this);
-        QDateTime dt;
         if (obj.contains("start")){
-            dt = QDateTime::fromString(obj["start"].toString(), TIMEW_DATE_FORMAT_EXPORT);
-            dt.setTimeZone(QTimeZone::UTC);
-            entry->setStart(dt.toLocalTime());
+            entry->setStart(time2LOCAL(QDateTime::fromString(obj["start"].toString(), TIMEW_DATE_FORMAT_EXPORT)));
         }
         if (obj.contains("end")){
-            dt = QDateTime::fromString(obj["end"].toString(), TIMEW_DATE_FORMAT_EXPORT);
-            dt.setTimeZone(QTimeZone::UTC);
-            entry->setEnd(dt.toLocalTime());
+            entry->setEnd(time2LOCAL(QDateTime::fromString(obj["end"].toString(), TIMEW_DATE_FORMAT_EXPORT)));
         }
 
         if (obj.contains("annotation")){
@@ -217,6 +257,19 @@ void TimeW::refresh(){
 
     endResetModel();
     emit entriesChanged(); // pokud máš signal pro GUI
+}
+
+
+QDateTime TimeW::time2UTF(const QDateTime &t) const{
+    QDateTime dt=t;
+    dt.setTimeZone(QTimeZone::LocalTime);
+    return dt.toUTC();
+}
+
+QDateTime TimeW::time2LOCAL(const QDateTime &t) const{
+    QDateTime dt=t;
+    dt.setTimeZone(QTimeZone::UTC);
+    return dt.toLocalTime();
 }
 
 
