@@ -30,6 +30,7 @@ qt_add_qml_module(appqtimew
         QML_FILES qml/TagsViewer.qml
         QML_FILES qml/MyText.qml
         QML_FILES qml/MyTextField.qml
+        QML_FILES qml/DateTimePicker.qml
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
