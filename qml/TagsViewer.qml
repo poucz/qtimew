@@ -9,6 +9,7 @@ Flow {
     //width:400
 
     property var model: []
+    property var suggest: []
 
     // Signály pro komunikaci s nadřazeným prvkem
     signal tagAdded(string newTag)
@@ -76,7 +77,7 @@ Flow {
         // Styl vstupu
         background: Rectangle {
             color: root.item_background
-            border.color: input.activeFocus ? "#3498db" : "#d0d0d0"
+            border.color: input.activeFocus ? "#3498db" : palette.light
             border.width: input.activeFocus ? 2 : 1
             radius: 15
         }

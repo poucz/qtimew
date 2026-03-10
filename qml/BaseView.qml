@@ -142,6 +142,7 @@ Pane {
 
     RowLayout{
         id: menu
+        implicitWidth: parent.width
 
         Button {
             id:btn_start;
@@ -164,6 +165,40 @@ Pane {
                 root.timew.running=false
             }
         }
+
+        MyTextField{
+            placeholderText:"filtr start time"
+            background: Rectangle{
+                color: palette.alternateBase
+                border.color:palette.light
+            }
+        }
+
+        MyTextField{
+            placeholderText:"filtr end time"
+            background: Rectangle{
+                color: palette.alternateBase
+                border.color:palette.light
+            }
+        }
+
+
+        TagsViewer{
+            Layout.fillWidth: true
+            model: root.timew.tagsFiltr //root.timew.tags
+            onTagAdded: (tag) =>{
+                console.log("Add tag: "+tag)
+                var arr = root.timew.tagsFiltr.slice()
+                arr.push(tag)
+                root.timew.tagsFiltr = arr
+            }
+            onTagRemoved: (i, tag) => {
+                var arr = root.timew.tagsFiltr.slice()
+                arr.splice(i, 1)
+                root.timew.tagsFiltr = arr
+            }
+
+        }
     }
 
 
@@ -172,6 +207,7 @@ Pane {
     ListView {
         id: mainList
         anchors.top: menu.bottom
+        anchors.topMargin:10
         anchors.bottom: parent.bottom
         anchors.left: parent.left
         anchors.right: parent.right

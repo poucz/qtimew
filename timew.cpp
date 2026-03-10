@@ -227,6 +227,7 @@ void TimeW::setTagsFiltr(const QStringList &newFiltr){
     }
     timewFilter.tagsFiltr=newFiltr;
     emit filtrChanged();
+    refresh();
 }
 
 
@@ -305,13 +306,20 @@ void TimeW::refresh(){
     std::reverse(m_entries.begin(), m_entries.end());
 
     endResetModel();
+    refresgTags();
     emit entriesChanged(); // pokud máš signal pro GUI
 }
 
 
 
 void TimeW::refresgTags(){
-
+    //QByteArray output=runTimeWCmd(QStringList()<<"export"<<args);
+    m_tags.clear();
+    foreach (const auto itm, m_entries) {
+        m_tags.append(itm->tags());
+    }
+    m_tags.removeDuplicates();
+    emit tagsChanged();
 }
 
 
