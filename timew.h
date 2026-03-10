@@ -20,6 +20,8 @@ class TimeW : public QAbstractListModel
 
     Q_PROPERTY(QStringList tags         READ tags                                   NOTIFY tagsChanged)
     Q_PROPERTY(bool running            READ isRunning          WRITE setRunning     NOTIFY runningChange)
+
+    Q_PROPERTY(int durationSum         MEMBER  durationSum                          NOTIFY durationChange)
 public:
 
     enum TimeEntryRoles {
@@ -63,6 +65,7 @@ public:
     void setEndFiltr(const QDateTime & newFiltr);
     void setTagsFiltr(const QStringList & newFiltr);
     void setRunning(bool setRunn);//zastavi nebo spusti novy task
+    void computeDuration();
 
 
     void refresh();
@@ -75,6 +78,7 @@ private:
     };
 
     FILTR timewFilter;
+    int durationSum;
 
 
     QDateTime time2UTF(const QDateTime & t)const;
@@ -95,6 +99,7 @@ signals:
     void filtrChanged();
     void tagsChanged();
     void runningChange();
+    void durationChange();
 };
 
 

@@ -18,7 +18,10 @@ function formatDuration2(sec) {
 function formatDuration(sec) {
     var h = Math.floor(sec / 3600)
     var m = Math.floor((sec % 3600) / 60)
-
-    return (h < 10 ? "0" + h : h) + ":" +
-           (m < 10 ? "0" + m : m)
+    if (h >= 24) {
+        var d = Math.floor(h / 24)
+        h = h % 24
+        return d + "d " + (h < 10 ? "0" + h : h) + ":" + (m < 10 ? "0" + m : m)
+    }
+    return (h < 10 ? "0" + h : h) + ":" + (m < 10 ? "0" + m : m)
 }

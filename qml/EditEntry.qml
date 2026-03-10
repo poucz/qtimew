@@ -12,6 +12,8 @@ Dialog {
     property alias annotation : annotationField.text
     property var tags
 
+    property var timew
+
     width: 500
     height: 400
     standardButtons: Dialog.Ok | Dialog.Cancel
@@ -110,6 +112,7 @@ Dialog {
 
             TagsViewer{
                 model: root.tags
+                suggest: root.timew.tags
                 Layout.fillWidth: true
                 spacing: 8
                 onTagRemoved: (index) => root.removeTag(index)

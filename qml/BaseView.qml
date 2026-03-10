@@ -15,6 +15,7 @@ Pane {
 
     EditEntry{
         id:editEntry
+        timew:root.timew
     }
 
     Component {
@@ -32,29 +33,6 @@ Pane {
             required property int index
 
             required property var model
-
-            MouseArea {
-                id: hoverArea
-                anchors.fill: parent
-                hoverEnabled: true // Důležité pro detekci najetí bez kliknutí
-                ToolTip {
-                    visible: hoverArea.containsMouse && elemental.model.annotation !== ""
-                    delay: 100 // Zobrazí se po půl sekundě (aby neblikal při rychlém přejetí)
-
-                    contentItem: Text {
-                        text: elemental.model.annotation
-                        color: palette.text
-                        font.pixelSize: 12
-                        wrapMode: Text.WordWrap // Dlouhé poznámky se zalomí
-                    }
-                    background: Rectangle {
-                        color: palette.window
-                        border.color: palette.text
-                        border.width: 1
-                        radius: 4
-                    }
-                }
-            }//mousearea
 
             RowLayout {
                 id: mainLayout
@@ -101,19 +79,22 @@ Pane {
                     Layout.alignment: Qt.AlignRight
                     Layout.fillWidth: false
 
-                    MyText {
+                    TextClickable {
                         text: "ⓘ"
                         visible: elemental.model.annotation !== ""
-                        color: "#999"
                         font.pixelSize: 12
                         anchors.verticalCenter: parent.verticalCenter
+                        color: containsMouse ? "red" : palette.placeholderText
+
+                        ToolTip.visible: containsMouse
+                        ToolTip.text: elemental.model.annotation
+                        ToolTip.delay: 300
                     }
 
-                    Button {
+                    TextClickable {
                         text: "✎"
-                        width: 24 // Pevná šířka pro lepší klikatelnost
-                        palette.buttonText: "#999"
-                        background: Rectangle { color: "transparent" }
+                        font.pixelSize: 18
+                        color: containsMouse ? "red" : palette.placeholderText
                         onClicked: {
                             editEntry.itemId = elemental.model.id
                             editEntry.start = elemental.model.start
@@ -187,6 +168,7 @@ Pane {
         TagsViewer{
             Layout.fillWidth: true
             model: root.timew.tagsFiltr //root.timew.tags
+            suggest: root.timew.tags
             onTagAdded: (tag) =>{
                 console.log("Add tag: "+tag)
                 var arr = root.timew.tagsFiltr.slice()
@@ -235,7 +217,11 @@ Pane {
                 MyText { text: "ID"; font.bold: true; Layout.preferredWidth: 40 }
                 MyText { text: "Start"; font.bold: true; Layout.preferredWidth: 70 }
                 MyText { text: "Konec"; font.bold: true; Layout.preferredWidth: 70 }
-                MyText { text: "Trvání"; font.bold: true; Layout.preferredWidth: 50 }
+                Column {
+                    Layout.preferredWidth: 50
+                    MyText { text: "Trvání"; font.bold: true }
+                    MyText { text: Functions.formatDuration(root.timew.durationSum); font.pixelSize: 11 }
+                }
                 MyText { text: "Tagy"; font.bold: true; Layout.fillWidth: true }
                 MyText { text: "-"; font.bold: true; Layout.preferredWidth: 30 }
             }

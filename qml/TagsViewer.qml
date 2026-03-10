@@ -107,12 +107,31 @@ Flow {
 
         // Přidej do TextField
         onActiveFocusChanged: {
-            if (!activeFocus) root.filteredSuggest = []
+            if (activeFocus)
+                root.filteredSuggest = root.suggest
+            else
+                root.filteredSuggest = []
         }
         Keys.onEscapePressed: root.forceActiveFocus()
+    }
 
+    // Popup dej jako poslední prvek ve Flow – ale pozici počítej přes mapToItem
+    Popup {
+        id: suggestPopup
+        parent: Overlay.overlay
+        closePolicy: Popup.NoAutoClose
+        padding: 0
 
+        // Pozice se přepočítá při otevření
+        function reposition() {
+            var pos = input.mapToItem(null, 0, input.height + 4)
+            x = pos.x
+            y = pos.y
+        }
 
+        width: Math.max(input.width, 160)
+        visible: root.filteredSuggest.length > 0
+        onVisibleChanged: if (visible) reposition()
 
         ListView {
             id: suggestList
@@ -127,7 +146,7 @@ Flow {
             anchors.top: input.bottom
             anchors.left: input.left
             anchors.margins: 4
-            spacing:5
+            spacing:2
 
             delegate: Rectangle {
                 id: tag_str
@@ -135,6 +154,7 @@ Flow {
                 width: parent.width
                 height: 28
                 radius:30
+                border.color: palette.window
                 //color: containsMouse ? palette.highlight : root.item_background
 
                 TextClickable {
@@ -154,5 +174,6 @@ Flow {
 
             ScrollBar.vertical: ScrollBar { }
         }
+
     }
 }

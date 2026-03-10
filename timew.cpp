@@ -13,7 +13,8 @@
 
 
 TimeW::TimeW(QObject *parent)
-    : QAbstractListModel{parent}
+    : QAbstractListModel{parent},
+    durationSum(0)
 {
 
     watcher.addPath("/home/pou/.local/share/timewarrior/data/");
@@ -203,6 +204,17 @@ void TimeW::setRunning(bool setRunn){
 
 
 
+void TimeW::computeDuration(){
+    durationSum=0;
+    foreach (const auto itm, m_entries) {
+        durationSum+=itm->duration();
+    }
+    emit durationChange();
+}
+
+
+
+
 void TimeW::setStartFiltr(const QDateTime &newFiltr){
     if(newFiltr==timewFilter.startFiltr){
         return;
@@ -306,6 +318,8 @@ void TimeW::refresh(){
     std::reverse(m_entries.begin(), m_entries.end());
 
     endResetModel();
+
+    computeDuration();
     refresgTags();
     emit entriesChanged(); // pokud máš signal pro GUI
 }
