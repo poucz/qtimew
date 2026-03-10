@@ -8,6 +8,7 @@ Pane {
 
     DummyEntry{
         id:s
+
     }
 
     /*BaseView{
@@ -17,6 +18,7 @@ Pane {
 
 
     DateTimePicker{
+
     }
 
 

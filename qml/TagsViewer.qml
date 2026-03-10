@@ -142,10 +142,6 @@ Flow {
             height: Math.min(contentHeight, 250)
             clip: true
             z: 100
-
-            anchors.top: input.bottom
-            anchors.left: input.left
-            anchors.margins: 4
             spacing:2
 
             delegate: Rectangle {
