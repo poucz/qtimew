@@ -89,6 +89,7 @@ Pane {
 
                 TagsViewer{
                     model: elemental.model.tags
+                    suggest: root.timew.tags
                     Layout.fillWidth: true
                     onTagRemoved: (index,tag) => root.timew.delTag(elemental.model.id,tag)
                     onTagAdded: (newTag) => root.timew.addTag(elemental.model.id,newTag)

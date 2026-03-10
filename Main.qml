@@ -15,5 +15,4 @@ Window {
         timew: mainWindow.timew
         anchors.fill:parent
     }
-
 }

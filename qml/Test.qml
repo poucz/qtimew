@@ -4,14 +4,32 @@ import QtQuick.Controls
 Pane {
     id: root
 
+
+    // V ApplicationWindow nebo hlavním Rectangle
+    MouseArea {
+        anchors.fill: parent
+        z: -1  // pod vším ostatním
+        onPressed: function(mouse) {
+            forceActiveFocus()
+            mouse.accepted = false
+        }
+    }
+
+
     DummyEntry{
         id:s
     }
 
-    BaseView{
+    /*BaseView{
         anchors.fill:parent
         timew: s.entries
     }//*/
+
+
+    TagsViewer{
+        model:s.entries[0].tags
+        suggest:s.entries[0].tags
+    }
 
 /*    Button{
         onClicked:{
