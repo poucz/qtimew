@@ -33,7 +33,8 @@ jobs:
             libgl1-mesa-dev \
             libgles2-mesa-dev \
             libxkbcommon-dev \
-            libxkbcommon-x11-dev
+            libxkbcommon-x11-dev \
+            libfuse2
 
       - name: Configure
         run: cmake -S src -B build -DCMAKE_BUILD_TYPE=Release
@@ -41,9 +42,25 @@ jobs:
       - name: Build
         run: cmake --build build --parallel
 
+      - name: Download linuxdeploy + Qt plugin
+        run: |
+          wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+          wget -q https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
+          chmod +x linuxdeploy-x86_64.AppImage linuxdeploy-plugin-qt-x86_64.AppImage
+
+      - name: Create AppImage
+        env:
+          QMAKE: ${{ env.Qt6_DIR }}/bin/qmake
+        run: |
+          ./linuxdeploy-x86_64.AppImage \
+            --appdir AppDir \
+            --executable build/qTimeW \
+            --plugin qt \
+            --output appimage
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: build-linux
-          path: build/
+          name: AppImage-linux
+          path: '*.AppImage'
           retention-days: 7
