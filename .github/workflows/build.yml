@@ -1,48 +1,46 @@
-name: Build AppImage
+name: Build
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, master ]
   pull_request:
-    branches: [ main ]
-  release:
-    types: [created]
+    branches: [ main, master ]
 
 jobs:
-  build:
+  build-linux:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y build-essential cmake qt6-base-dev qt6-tools-dev qt6-tools-dev-tools
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.7.0'
+          host: 'linux'
+          target: 'desktop'
+          arch: 'linux_gcc_64'
+          modules: 'qtshadertools'   # potřebné pro QML
 
-    - name: Configure CMake
-      run: |
-        mkdir -p build
-        cd build
-        cmake .. -DCMAKE_BUILD_TYPE=Release
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libgl1-mesa-dev \
+            libgles2-mesa-dev \
+            libxkbcommon-dev \
+            libxkbcommon-x11-dev
 
-    - name: Build application
-      run: |
-        cd build
-        cmake --build . --config Release --parallel
+      - name: Configure
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
 
-    - name: Download linuxdeployqt
-      run: |
-        wget https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage
-        chmod +x linuxdeployqt-continuous-x86_64.AppImage
+      - name: Build
+        run: cmake --build build --parallel
 
-    - name: Create AppImage
-      run: |
-        ./linuxdeployqt-continuous-x86_64.AppImage build/myapp -appimage
-
-    - name: Upload artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: AppImage
-        path: build/*.AppImage
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-linux
+          path: build/
+          retention-days: 7
