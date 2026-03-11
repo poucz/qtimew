@@ -1,0 +1,48 @@
+name: Build AppImage
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  release:
+    types: [created]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential cmake qt6-base-dev qt6-tools-dev qt6-tools-dev-tools
+
+    - name: Configure CMake
+      run: |
+        mkdir -p build
+        cd build
+        cmake .. -DCMAKE_BUILD_TYPE=Release
+
+    - name: Build application
+      run: |
+        cd build
+        cmake --build . --config Release --parallel
+
+    - name: Download linuxdeployqt
+      run: |
+        wget https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage
+        chmod +x linuxdeployqt-continuous-x86_64.AppImage
+
+    - name: Create AppImage
+      run: |
+        ./linuxdeployqt-continuous-x86_64.AppImage build/myapp -appimage
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: AppImage
+        path: build/*.AppImage
