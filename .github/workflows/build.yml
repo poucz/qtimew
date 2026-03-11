@@ -54,6 +54,8 @@ jobs:
           ./linuxdeploy-x86_64.AppImage \
             --appdir AppDir \
             --executable build/qTimeW \
+            --desktop-file src/qTimeW.desktop \
+            --icon-file src/icons/qTimeW.png \
             --plugin qt \
             --output appimage
 
