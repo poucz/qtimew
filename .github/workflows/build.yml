@@ -55,7 +55,7 @@ jobs:
             --appdir AppDir \
             --executable build/qTimeW \
             --desktop-file src/qTimeW.desktop \
-            --icon-file src/icons/qTimeW.png \
+            --icon-file src/icons/logo.png \
             --plugin qt \
             --output appimage
 
