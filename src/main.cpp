@@ -7,6 +7,7 @@
 #include <QWindow>
 #include <QPainter>
 #include <QFont>
+#include <QTimer>
 #include "timew.h"
 
 // Vytvoří ikonu z UTF znaku
@@ -71,10 +72,14 @@ int main(int argc, char *argv[])
     // Skrýt okno při ztrátě fokusu
     QObject::connect(window, &QWindow::activeChanged, [&]() {
         if (!window->isActive()) {
-            window->hide();
+            static QPoint lastPos = window->position();
+            QPoint currentPos = window->position();
+            if (currentPos == lastPos) {
+                window->hide();
+            }
+            lastPos = currentPos;
         }
     });
-
 
     // Inicializace při startu
     updateTray();
