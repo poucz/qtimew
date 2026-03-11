@@ -197,6 +197,12 @@ QStringList TimeW::runningTags() const{
 }
 
 
+
+QStringList TimeW::lastTags() const{
+    return m_lastTags;
+}
+
+
 void TimeW::setRunning(bool setRunn){
     if(setRunn){
         runTimeWCmd(QStringList()<<"start");
@@ -284,18 +290,28 @@ void TimeW::refresgTags(){
 void TimeW::refresh_running(){
     FILTR f;
     f.idFiltr.append(1);
+    f.idFiltr.append(2);
+    f.idFiltr.append(3);
+    f.idFiltr.append(4);
+    f.idFiltr.append(5);
+    f.idFiltr.append(6);
 
     bool actRunniing=false;
-    QStringList tags;
+    QStringList act_tags;
+    m_lastTags.clear();
 
     QList<TimeEntry*> itms=loadFiles(f);
     if(!itms.isEmpty()){
         if(!itms.at(0)->end().isValid()){
             actRunniing=true;
-            tags=itms.at(0)->tags();
+            act_tags=itms.at(0)->tags();
+        }
+        foreach (TimeEntry * itm, itms) {
+            m_lastTags<<itm->tags();
         }
     }
     destroyEntry(itms);
+    m_lastTags.removeDuplicates();
 
 
     if(actRunniing!=isRunning()){
@@ -305,15 +321,16 @@ void TimeW::refresh_running(){
 
 
     if(!actRunniing){
-        tags.clear();
+        act_tags.clear();
     }
 
-    if(tags!= m_runningTags){
-        m_runningTags=tags;
+    if(act_tags!= m_runningTags){
+        m_runningTags=act_tags;
         emit runningTagsChange();
     }
 
 }
+
 
 void TimeW::destroyEntry(QList<TimeEntry *> &list){
     foreach (TimeEntry * itm, list) {

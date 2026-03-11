@@ -49,6 +49,11 @@ Pane {
                 }
 
                 MyText {
+                    text: Qt.formatDateTime(elemental.model.start, "dd.MM")
+                    Layout.preferredWidth: 70
+                }
+
+                MyText {
                     // Zobrazení pouze času (HH:mm:ss)
                     text: Qt.formatDateTime(elemental.model.start, "hh:mm:ss")
                     Layout.preferredWidth: 70
@@ -221,6 +226,7 @@ Pane {
                 spacing: 15
 
                 MyText { text: "ID"; font.bold: true; Layout.preferredWidth: 40 }
+                MyText { text: "Date"; font.bold: true; Layout.preferredWidth: 40 }
                 MyText { text: "Start"; font.bold: true; Layout.preferredWidth: 70 }
                 MyText { text: "Konec"; font.bold: true; Layout.preferredWidth: 70 }
                 Column {

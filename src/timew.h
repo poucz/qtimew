@@ -60,6 +60,7 @@ public:
     QStringList tags()const{return m_tags;}
     bool isRunning()const;
     QStringList runningTags()const;
+    QStringList lastTags()const;//< poslední použité tagy
 
 
     void setStartFiltr(const QDateTime & newFiltr);
@@ -73,6 +74,7 @@ public:
     void refresh();
     void refresgTags();
     void refresh_running();
+    void refresh_lastTags();
 private:
     struct FILTR{
         QDateTime   startFiltr;
@@ -94,6 +96,7 @@ private:
     QFileSystemWatcher watcher;
     bool m_running;// zda beti
     QStringList m_runningTags;// tagy beziciho záznamu
+    QStringList m_lastTags;// poslední použité tagy
 
     QByteArray runTimeWCmd(const QStringList & arg) const;
     void saveToDB(TimeEntry *entry);

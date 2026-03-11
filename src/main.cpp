@@ -70,16 +70,29 @@ int main(int argc, char *argv[])
     QObject::connect(&timew, &TimeW::runningTagsChange, &app, updateTray);
 
     // Skrýt okno při ztrátě fokusu
-    QObject::connect(window, &QWindow::activeChanged, [&]() {
+    /*QObject::connect(window, &QWindow::activeChanged, [window]() {
         if (!window->isActive()) {
-            static QPoint lastPos = window->position();
-            QPoint currentPos = window->position();
-            if (currentPos == lastPos) {
+            // Počkáme chvíli, než se systémy "domluví"
+            QTimer::singleShot(150, [window]() {
+                // 1. Zkontrolujeme, zda má aplikace stále nějaké okno aktivní
+                if (QGuiApplication::focusWindow() != nullptr) return;
+
+                // 2. KLÍČOVÝ KROK: Zkontrolujeme, zda je myš stále nad oknem (včetně rámu)
+                // Pokud uživatel okno drží (přesun/resize), myš je technicky "u nás".
+                QPoint globalCursorPos = QCursor::pos();
+
+                // window->frameGeometry() zahrnuje i titulkovou lištu a okraje
+                if (window->frameGeometry().contains(globalCursorPos)) {
+                    // Uživatel pravděpodobně okno drží nebo na něj klikl (přesun/resize)
+                    // V tomto případě okno NESCHVÁMÍME.
+                    return;
+                }
+
+                // Pokud není aktivní okno A myš není nad naším oknem -> uživatel klikl jinam
                 window->hide();
-            }
-            lastPos = currentPos;
+            });
         }
-    });
+    });*/
 
     // Inicializace při startu
     updateTray();
@@ -99,20 +112,50 @@ int main(int argc, char *argv[])
 
     QMenu menu;
 
-    QAction *trackAction = menu.addAction("");
+    QList<QAction*> tagActions; // seznam akcí pro tagy – mimo lambda, aby šlo je mazat
+    QAction *trackAction = menu.addAction("");//start/stop
+    QAction *toggleAction = menu.addAction("Zobrazit / Skrýt");
+    QAction *quitAction   = menu.addAction("Ukončit");
+
     auto updateTrackAction = [&]() {
         trackAction->setText(timew.isRunning() ? "Stop" : "Start");
+
+        // Odstranit staré tag akce
+        for (QAction *a : tagActions) {
+            menu.removeAction(a);
+            delete a;
+        }
+        tagActions.clear();
+
+        // Přidat tag akce jen pokud neběží
+        if (timew.isRunning() ) {
+            QStringList tags = timew.lastTags();
+            for (const QString &tag : tags) {
+                QAction *tagAction = new QAction("▶ " + tag, &menu);
+                // Vložit za trackAction
+                //QAction *insertBefore = tagActions.isEmpty()
+                //                            ? menu.actions().value(menu.actions().indexOf(trackAction) + 1)
+                //                            : nullptr;
+
+                menu.insertAction(toggleAction, tagAction);
+                tagActions.append(tagAction);
+
+                QObject::connect(tagAction, &QAction::triggered, [&timew, tag]() {
+                    timew.setRunning(true);
+                    timew.addTag(1,tag);
+                });
+            }
+        }
     };
+
+
+
     updateTrackAction(); // inicializace
     QObject::connect(&timew, &TimeW::runningChange, &app, updateTrackAction);
     QObject::connect(trackAction, &QAction::triggered, [&]() {
         if (timew.isRunning()) timew.setRunning(false);
         else timew.setRunning(true);
     });
-
-
-    QAction *toggleAction = menu.addAction("Zobrazit / Skrýt");
-    QAction *quitAction   = menu.addAction("Ukončit");
 
     QObject::connect(toggleAction, &QAction::triggered, [&]() {
         if (window->isVisible()) window->hide();
