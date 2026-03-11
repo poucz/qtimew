@@ -4,20 +4,20 @@ import QtQuick.Layouts 1.15
 
 Item {
     id: root
-    width: 380
+    width: (showDate ? 270 : 0) + (showTime && showDate ? 1 : 0) + (showTime ? 110 : 0)
     height: 320
 
-    property bool showTime: false
+    property bool showTime: true
+    property bool showDate: true
 
     // --- Public API ---
-    property var selectedDate: new Date(2014, 6, 9, 12, 0)  // July 9, 2014 12:00 PM
+    property var selectedDate: new Date(2014, 6, 9, 12, 0)
 
     signal accepted()
 
-
     // Internal state
     property int viewYear:  selectedDate.getFullYear()
-    property int viewMonth: selectedDate.getMonth()   // 0-based
+    property int viewMonth: selectedDate.getMonth()
 
     readonly property var monthNames: [
         "January","February","March","April","May","June",
@@ -25,7 +25,6 @@ Item {
     ]
     readonly property var dayNames: ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]
 
-    // Time slots every 30 minutes
     property var timeSlots: {
         var slots = []
         for (var h = 0; h < 24; h++) {
@@ -61,10 +60,16 @@ Item {
         var h  = d.getHours()
         var mi = d.getMinutes()
         var mm = mi < 10 ? "0" + mi : mi
-        return dy + "/" + mo + "/" + yr + " " + h + ":" + mm
+
+        if( root.showTime && root.showDate){
+            return dy + "/" + mo + "/" + yr + " " + h + ":" + mm
+        }else if(root.showTime){
+            return  h + ":" + mm
+        }else{
+            return dy + "/" + mo + "/" + yr
+        }
     }
 
-    // ── Outer border ──────────────────────────────────────────────────────────
     Rectangle {
         anchors.fill: parent
         color: palette.window
@@ -123,6 +128,7 @@ Item {
 
                 // ── Calendar panel ─────────────────────────────────────────
                 Rectangle {
+                    visible: root.showDate
                     Layout.fillHeight: true
                     width: 270
                     color: palette.base
@@ -131,7 +137,6 @@ Item {
                         anchors.fill: parent
                         spacing: 0
 
-                        // Month navigation header
                         Rectangle {
                             Layout.fillWidth: true
                             height: 30
@@ -140,7 +145,6 @@ Item {
                             RowLayout {
                                 anchors { fill: parent; leftMargin: 4; rightMargin: 4 }
 
-                                // Prev month button
                                 Rectangle {
                                     width: 22; height: 22
                                     color: prevHover.containsMouse ? palette.midlight : "transparent"
@@ -170,7 +174,6 @@ Item {
                                     font { pixelSize: 14; bold: true }
                                 }
 
-                                // Next month button
                                 Rectangle {
                                     width: 22; height: 22
                                     color: nextHover.containsMouse ? palette.midlight : "transparent"
@@ -194,7 +197,6 @@ Item {
                             }
                         }
 
-                        // Day-of-week header row
                         Row {
                             Layout.fillWidth: true
                             height: 24
@@ -215,7 +217,6 @@ Item {
                             }
                         }
 
-                        // Day grid (6 rows × 7 cols)
                         GridView {
                             id: dayGrid
                             Layout.fillWidth: true
@@ -281,7 +282,7 @@ Item {
                             }
                         }
 
-                        // Bottom buttons: Today / Now
+                        // Today / Now buttons
                         Rectangle {
                             Layout.fillWidth: true
                             height: 30
@@ -319,6 +320,7 @@ Item {
                                     text: "Now"
                                     flat: true
                                     font.pixelSize: 12
+                                    visible: root.showTime
                                     onClicked: {
                                         var now = new Date()
                                         var nd = new Date(root.selectedDate)
@@ -334,10 +336,16 @@ Item {
                 }
 
                 // ── Vertical divider ───────────────────────────────────────
-                Rectangle { width: 1; Layout.fillHeight: true; color: palette.mid }
+                Rectangle {
+                    visible: root.showDate && root.showTime
+                    width: 1
+                    Layout.fillHeight: true
+                    color: palette.mid
+                }
 
                 // ── Time panel ─────────────────────────────────────────────
                 Rectangle {
+                    visible: root.showTime
                     Layout.fillHeight: true
                     Layout.fillWidth: true
                     color: palette.base
@@ -346,7 +354,6 @@ Item {
                         anchors.fill: parent
                         spacing: 0
 
-                        // "Time" header
                         Rectangle {
                             Layout.fillWidth: true
                             height: 30
@@ -359,7 +366,6 @@ Item {
                             }
                         }
 
-                        // Time list
                         ListView {
                             id: timeList
                             Layout.fillWidth: true
@@ -408,26 +414,26 @@ Item {
                                 }
                             }
                         }
+                    }
+                }
+            }
 
-                        // "Done" button
-                        Rectangle {
-                            Layout.fillWidth: true
-                            height: 30
-                            color: palette.window
-                            border.color: palette.mid
-                            border.width: 1
+            // ── Done button – vždy viditelný ──────────────────────────────
+            Rectangle {
+                Layout.fillWidth: true
+                height: 30
+                color: palette.window
+                border.color: palette.mid
+                border.width: 1
 
-                            Button {
-                                anchors.fill: parent
-                                text: "Done"
-                                flat: true
-                                font.pixelSize: 12
-                                onClicked: {
-                                    console.log("Selected:", root.formatHeader())
-                                    root.accepted();
-                                }
-                            }
-                        }
+                Button {
+                    anchors.fill: parent
+                    text: "Done"
+                    flat: true
+                    font.pixelSize: 12
+                    onClicked: {
+                        console.log("Selected:", root.formatHeader())
+                        root.accepted()
                     }
                 }
             }

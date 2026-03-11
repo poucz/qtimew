@@ -8,8 +8,12 @@ Item {
     property var dateTime
     property bool showIcon: true
 
+
+    property alias showTime: dtPicker.showTime
+    property alias showdate: dtPicker.showDate
+
     property string dateTimeFormat:  "dd.MM.yyyy  HH:mm"
-    property bool showTime: true
+
 
 
     //implicitWidth: row.implicitWidth
@@ -66,7 +70,6 @@ Item {
             Component.onCompleted: selectedDate = root.dateTime
             onAccepted: {
                 root.dateTime=selectedDate
-                console.log("New date accepted! ")
                 picker.close()
             }
         }

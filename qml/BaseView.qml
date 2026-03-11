@@ -151,6 +151,7 @@ Pane {
         MyDateTime{
             Layout.preferredWidth: 130
             showIcon:false
+            showTime:false
             dateTime: root.timew.startFiltr
             dateTimeFormat: "dd.MM.yyyy"
             onDateTimeChanged:{
@@ -162,6 +163,7 @@ Pane {
         MyDateTime{
             Layout.preferredWidth: 130
             showIcon:false
+            showTime:false
             dateTime: root.timew.endFiltr
             dateTimeFormat: "dd.MM.yyyy"
             onDateTimeChanged:{
