@@ -10,6 +10,8 @@
 #include <QTimer>
 #include "timew.h"
 
+#include <QDirIterator>
+
 // Vytvoří ikonu z UTF znaku
 static QIcon iconFromText(const QString &text, const QColor &color)
 {
@@ -29,6 +31,7 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     app.setQuitOnLastWindowClosed(false);
+    app.setWindowIcon(QIcon(":/qt/qml/qtimew/icons/logo.png"));
 
     TimeW timew;
     QQmlApplicationEngine engine;
@@ -132,11 +135,6 @@ int main(int argc, char *argv[])
             QStringList tags = timew.lastTags();
             for (const QString &tag : tags) {
                 QAction *tagAction = new QAction("▶ " + tag, &menu);
-                // Vložit za trackAction
-                //QAction *insertBefore = tagActions.isEmpty()
-                //                            ? menu.actions().value(menu.actions().indexOf(trackAction) + 1)
-                //                            : nullptr;
-
                 menu.insertAction(toggleAction, tagAction);
                 tagActions.append(tagAction);
 
