@@ -29,7 +29,7 @@ TimeW::TimeW(QObject *parent)
 
 
     refresh();
-
+    refresh_running();
 }
 
 
@@ -162,16 +162,16 @@ void TimeW::addEntry(const QDateTime &start, const QDateTime &end, const QString
     runTimeWCmd(args);
 
     if(annotation!=""){
-        FILTR old=timewFilter;
-        timewFilter.startFiltr=start;
-        timewFilter.endFiltr=end;
-        timewFilter.tagsFiltr=tags;
-        refresh();
-        if(m_entries.count()==1){
-            runTimeWCmd(QStringList()<<"annotate"<<"@"+QString::number(m_entries.at(0)->id())<<annotation);
+        FILTR f;
+        f.startFiltr=start;
+        f.endFiltr=end;
+        f.tagsFiltr=tags;
+        QList<TimeEntry*> entryes=loadFiles(f);
+
+        if(entryes.count()==1){
+            runTimeWCmd(QStringList()<<"annotate"<<"@"+QString::number(entryes.at(0)->id())<<annotation);
         }
-        timewFilter=old;
-        refresh();
+        destroyEntry(entryes);
     }
 }
 
@@ -189,12 +189,11 @@ void TimeW::delTag(int id, const QString &tag){
 
 
 bool TimeW::isRunning() const{
-    if(!m_entries.isEmpty()){
-        if(! m_entries.at(0)->end().isValid()){
-            return true;
-        }
-    }
-    return false;
+    return m_running;
+}
+
+QStringList TimeW::runningTags() const{
+    return m_runningTags;
 }
 
 
@@ -255,41 +254,109 @@ void TimeW::setTagsFiltr(const QStringList &newFiltr){
 
 
 
-
-
 void TimeW::refresh(){
 
-    // 1. Spustit "timew export"
+    beginResetModel();
+    destroyEntry(m_entries);
+    m_entries=loadFiles(timewFilter);
+    endResetModel();
+
+    computeDuration();
+    refresgTags();
+    emit entriesChanged(); // pokud máš signal pro GUI
+}
+
+
+
+
+void TimeW::refresgTags(){
+    //QByteArray output=runTimeWCmd(QStringList()<<"export"<<args);
+    m_tags.clear();
+    foreach (const auto itm, m_entries) {
+        m_tags.append(itm->tags());
+    }
+    m_tags.removeDuplicates();
+    emit tagsChanged();
+}
+
+
+
+void TimeW::refresh_running(){
+    FILTR f;
+    f.idFiltr.append(1);
+
+    bool actRunniing=false;
+    QStringList tags;
+
+    QList<TimeEntry*> itms=loadFiles(f);
+    if(!itms.isEmpty()){
+        if(!itms.at(0)->end().isValid()){
+            actRunniing=true;
+            tags=itms.at(0)->tags();
+        }
+    }
+    destroyEntry(itms);
+
+
+    if(actRunniing!=isRunning()){
+        m_running=actRunniing;
+        emit runningChange();
+    }
+
+
+    if(!actRunniing){
+        tags.clear();
+    }
+
+    if(tags!= m_runningTags){
+        m_runningTags=tags;
+        emit runningTagsChange();
+    }
+
+}
+
+void TimeW::destroyEntry(QList<TimeEntry *> &list){
+    foreach (TimeEntry * itm, list) {
+        delete itm;
+    }
+    list.clear();
+}
+
+QList<TimeEntry *> TimeW::loadFiles(const FILTR &filtr) const{
+    QList<TimeEntry *> ret;
     QStringList args;
-    if(timewFilter.startFiltr.isValid()){
-        args.append(time2UTF(timewFilter.startFiltr).toString(TIMEW_DATE_FORMAT_EXPORT));
-        if(timewFilter.endFiltr.isValid()){//end bez start filtru asi nejde, protože range je určen "-"
+    if(filtr.startFiltr.isValid()){
+        args.append(time2UTF(filtr.startFiltr).toString(TIMEW_DATE_FORMAT_EXPORT));
+        if(filtr.endFiltr.isValid()){//end bez start filtru asi nejde, protože range je určen "-"
             args.append("-");
-            args.append(time2UTF(timewFilter.endFiltr).toString(TIMEW_DATE_FORMAT_EXPORT));
+            args.append(time2UTF(filtr.endFiltr).toString(TIMEW_DATE_FORMAT_EXPORT));
         }
     }
 
-    args<<timewFilter.tagsFiltr;
+    if(!filtr.idFiltr.isEmpty()){
+        foreach (int itm, filtr.idFiltr) {
+            args.append("@"+QString::number(itm));
+        }
+    }
+
+    args<<filtr.tagsFiltr;
     QByteArray output=runTimeWCmd(QStringList()<<"export"<<args);
 
-    // 2. Parsovat JSON
+
     QJsonParseError parseError;
     QJsonDocument doc = QJsonDocument::fromJson(output, &parseError);
 
     if (parseError.error != QJsonParseError::NoError) {
         qWarning() << "JSON parse error:" << parseError.errorString();
-        return;
+        return ret;
     }
 
     if (!doc.isArray()) {
         qWarning() << "Expected JSON array from timew export";
-        return;
+        return ret;
     }
 
     QJsonArray jsonArray = doc.array();
-    beginResetModel();
-    m_entries.clear(); // předchozí data, m_entries je QList<TimeEntry*>
-
     for (const QJsonValue &val : jsonArray) {
         if (!val.isObject()) continue;
         QJsonObject obj = val.toObject();
@@ -299,7 +366,7 @@ void TimeW::refresh(){
             continue;
         }
 
-        TimeEntry *entry = new TimeEntry(obj["id"].toInt(),this);
+        TimeEntry *entry = new TimeEntry(obj["id"].toInt(),nullptr);
         if (obj.contains("start")){
             entry->setStart(time2LOCAL(QDateTime::fromString(obj["start"].toString(), TIMEW_DATE_FORMAT_EXPORT)));
         }
@@ -319,30 +386,14 @@ void TimeW::refresh(){
             entry->setTags(tags);
         }
 
-        //qDebug()<<"Pridan zaznam: "<<entry;
-        connect(entry, &TimeEntry::entryChanged, this, [this, entry](){ saveToDB(entry); });
-        m_entries.append(entry);
+
+        ret.append(entry);
     }
 
-    std::reverse(m_entries.begin(), m_entries.end());
-
-    endResetModel();
-
-    computeDuration();
-    refresgTags();
-    emit entriesChanged(); // pokud máš signal pro GUI
-}
+    std::reverse(ret.begin(), ret.end());
 
 
-
-void TimeW::refresgTags(){
-    //QByteArray output=runTimeWCmd(QStringList()<<"export"<<args);
-    m_tags.clear();
-    foreach (const auto itm, m_entries) {
-        m_tags.append(itm->tags());
-    }
-    m_tags.removeDuplicates();
-    emit tagsChanged();
+    return ret;
 }
 
 
@@ -389,6 +440,7 @@ void TimeW::saveToDB(TimeEntry *entry){
 void TimeW::onDirectoryChanged(const QString &path){
     qInfo() << "V adresáři" << path << "se něco změnilo!";
     refresh();
+    refresh_running();
 }
 
 

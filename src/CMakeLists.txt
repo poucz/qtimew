@@ -4,12 +4,16 @@ project(qtimew VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Quick)
+find_package(Qt6 REQUIRED COMPONENTS Widgets Quick)
 
 qt_standard_project_setup(REQUIRES 6.8)
 
 qt_add_executable(appqtimew
     main.cpp
+)
+
+target_link_libraries(appqtimew
+    PRIVATE Qt6::Quick Qt6::Widgets  # ← přidáno Widgets
 )
 
 qt_add_qml_module(appqtimew

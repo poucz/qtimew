@@ -59,6 +59,7 @@ public:
     QStringList tagsFiltr()const{return timewFilter.tagsFiltr;}
     QStringList tags()const{return m_tags;}
     bool isRunning()const;
+    QStringList runningTags()const;
 
 
     void setStartFiltr(const QDateTime & newFiltr);
@@ -68,24 +69,31 @@ public:
     void computeDuration();
 
 
+
     void refresh();
     void refresgTags();
+    void refresh_running();
 private:
     struct FILTR{
         QDateTime   startFiltr;
         QDateTime   endFiltr;
         QStringList tagsFiltr;
+        QList<int> idFiltr;
     };
 
     FILTR timewFilter;
     int durationSum;
 
 
+    void destroyEntry(QList<TimeEntry*> &list);
+    QList<TimeEntry*> loadFiles(const FILTR & filtr)const;
     QDateTime time2UTF(const QDateTime & t)const;
     QDateTime time2LOCAL(const QDateTime & t)const;
     QList<TimeEntry*> m_entries;
     QStringList m_tags; //seznam všech tagů
     QFileSystemWatcher watcher;
+    bool m_running;// zda beti
+    QStringList m_runningTags;// tagy beziciho záznamu
 
     QByteArray runTimeWCmd(const QStringList & arg) const;
     void saveToDB(TimeEntry *entry);
@@ -99,6 +107,7 @@ signals:
     void filtrChanged();
     void tagsChanged();
     void runningChange();
+    void runningTagsChange();
     void durationChange();
 };
 
