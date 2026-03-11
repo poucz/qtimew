@@ -7,8 +7,13 @@ Item {
     width: 380
     height: 320
 
+    property bool showTime: false
+
     // --- Public API ---
     property var selectedDate: new Date(2014, 6, 9, 12, 0)  // July 9, 2014 12:00 PM
+
+    signal accepted()
+
 
     // Internal state
     property int viewYear:  selectedDate.getFullYear()
@@ -419,6 +424,7 @@ Item {
                                 font.pixelSize: 12
                                 onClicked: {
                                     console.log("Selected:", root.formatHeader())
+                                    root.accepted();
                                 }
                             }
                         }

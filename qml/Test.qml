@@ -11,15 +11,11 @@ Pane {
 
     }
 
-    /*BaseView{
+    BaseView{
         anchors.fill:parent
         timew: s.entries
     }//*/
 
-
-    DateTimePicker{
-
-    }
 
 
 /*    Button{

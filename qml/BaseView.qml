@@ -148,22 +148,26 @@ Pane {
             }
         }
 
-        MyTextField{
-            placeholderText:"filtr start time"
-            background: Rectangle{
-                color: palette.alternateBase
-                border.color:palette.light
+        MyDateTime{
+            Layout.preferredWidth: 130
+            showIcon:false
+            dateTime: root.timew.startFiltr
+            dateTimeFormat: "dd.MM.yyyy"
+            onDateTimeChanged:{
+                console.log("Start filtr changed")
+                root.timew.startFiltr=dateTime
             }
         }
 
-        MyTextField{
-            placeholderText:"filtr end time"
-            background: Rectangle{
-                color: palette.alternateBase
-                border.color:palette.light
+        MyDateTime{
+            Layout.preferredWidth: 130
+            showIcon:false
+            dateTime: root.timew.endFiltr
+            dateTimeFormat: "dd.MM.yyyy"
+            onDateTimeChanged:{
+                root.timew.endFiltr=dateTime
             }
         }
-
 
         TagsViewer{
             Layout.fillWidth: true

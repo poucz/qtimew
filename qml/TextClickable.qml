@@ -9,8 +9,7 @@ MyText {
     signal doubleClick()
     signal clicked()
 
-    horizontalAlignment: Text.AlignHCenter
-    verticalAlignment: Text.AlignVCenter
+
 
     MouseArea {
         id: startMouse

@@ -17,6 +17,13 @@ TimeW::TimeW(QObject *parent)
     durationSum(0)
 {
 
+
+    timewFilter.startFiltr =  QDateTime(QDate::currentDate().addMonths(-1), QTime(00,00,00));
+    timewFilter.endFiltr = QDateTime(QDate::currentDate().addDays(0), QTime(23,59,59));
+
+
+
+
     watcher.addPath("/home/pou/.local/share/timewarrior/data/");
     connect(&watcher, &QFileSystemWatcher::directoryChanged, this, &TimeW::onDirectoryChanged);
 
@@ -221,6 +228,7 @@ void TimeW::setStartFiltr(const QDateTime &newFiltr){
     }
     timewFilter.startFiltr=newFiltr;
     emit filtrChanged();
+    refresh();
 }
 
 
@@ -231,6 +239,7 @@ void TimeW::setEndFiltr(const QDateTime &newFiltr){
     }
     timewFilter.endFiltr=newFiltr;
     emit filtrChanged();
+    refresh();
 }
 
 void TimeW::setTagsFiltr(const QStringList &newFiltr){
