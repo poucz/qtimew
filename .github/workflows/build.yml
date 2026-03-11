@@ -33,7 +33,7 @@ jobs:
             libxkbcommon-x11-dev
 
       - name: Configure
-        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+        run: cmake -S src -B build -DCMAKE_BUILD_TYPE=Release
 
       - name: Build
         run: cmake --build build --parallel
