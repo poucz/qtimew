@@ -24,7 +24,7 @@ qt_add_qml_module(appqtimew
         QML_FILES qml/Test.qml
         QML_FILES qml/DummyEntry.qml
         QML_FILES qml/Functions.js
-        QML_FILES qml/EditTimeDate.qml
+        QML_FILES
         QML_FILES qml/TextClickable.qml
         QML_FILES qml/EditEntry.qml
         QML_FILES qml/TagsViewer.qml
