@@ -38,7 +38,7 @@ qt_add_qml_module(${APP_NAME}
         QML_FILES qml/DateTimePicker.qml
         QML_FILES qml/MyDateTime.qml
         RESOURCES icons/icons.qrc
-            icons/logo.png
+            icons/qTimeW.png
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.

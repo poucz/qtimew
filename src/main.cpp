@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     app.setQuitOnLastWindowClosed(false);
-    app.setWindowIcon(QIcon(":/qt/qml/qtimew/icons/logo.png"));
+    app.setWindowIcon(QIcon(":/qt/qml/qtimew/icons/qTimeW.png"));
 
     TimeW timew;
     QQmlApplicationEngine engine;
