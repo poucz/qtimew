@@ -64,5 +64,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: AppImage-linux
-          path: '*.AppImage'
+          path: 'qTimeW*.AppImage'
           retention-days: 7
